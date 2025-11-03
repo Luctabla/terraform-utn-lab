@@ -8,25 +8,25 @@ This diagram shows the AWS resources created by this Terraform project and how t
 graph TB
     subgraph "AWS Account"
         subgraph "SQS Service"
-            SQS[SQS Queue<br/>terraform-lab-queue-{workspace}]
+            SQS["SQS Queue<br/>terraform-lab-queue-workspace"]
         end
 
         subgraph "Lambda Service"
-            Lambda[Lambda Function<br/>terraform-lab-sqs-to-s3-{workspace}<br/>Runtime: Python 3.12]
-            ESM[Event Source Mapping<br/>Batch Size: 1]
+            Lambda["Lambda Function<br/>terraform-lab-sqs-to-s3-workspace<br/>Runtime: Python 3.12"]
+            ESM["Event Source Mapping<br/>Batch Size: 1"]
         end
 
         subgraph "S3 Service"
-            S3[S3 Bucket<br/>terraform-lab-output-{workspace}<br/>Versioning: Enabled]
+            S3["S3 Bucket<br/>terraform-lab-output-workspace<br/>Versioning: Enabled"]
         end
 
         subgraph "IAM Service"
-            Role[IAM Role<br/>terraform-lab-lambda-role-{workspace}]
-            Policy[IAM Policy<br/>Permissions for Lambda]
+            Role["IAM Role<br/>terraform-lab-lambda-role-workspace"]
+            Policy["IAM Policy<br/>Permissions for Lambda"]
         end
 
         subgraph "CloudWatch Logs"
-            Logs[Log Group<br/>Lambda Execution Logs]
+            Logs["Log Group<br/>Lambda Execution Logs"]
         end
     end
 
@@ -123,79 +123,35 @@ graph LR
     class DefaultState,DevState,StagingState,ProdState stateStyle
 ```
 
-## Workspace-based Resource Naming
-
-```mermaid
-graph TB
-    subgraph "Terraform Workspaces"
-        WS[Workspace Name<br/>dev / staging / prod]
-    end
-
-    subgraph "Resource Naming Pattern"
-        Pattern["{project_name}-{resource}-{workspace}"]
-    end
-
-    subgraph "Example: dev workspace"
-        Lambda1[terraform-lab-sqs-to-s3-dev]
-        S3_1[terraform-lab-output-dev]
-        SQS1[terraform-lab-queue-dev]
-        Role1[terraform-lab-lambda-role-dev]
-    end
-
-    subgraph "Example: prod workspace"
-        Lambda2[terraform-lab-sqs-to-s3-prod]
-        S3_2[terraform-lab-output-prod]
-        SQS2[terraform-lab-queue-prod]
-        Role2[terraform-lab-lambda-role-prod]
-    end
-
-    WS --> Pattern
-    Pattern --> Lambda1
-    Pattern --> S3_1
-    Pattern --> SQS1
-    Pattern --> Role1
-    Pattern --> Lambda2
-    Pattern --> S3_2
-    Pattern --> SQS2
-    Pattern --> Role2
-
-    classDef wsStyle fill:#7b42bc,stroke:#232f3e,stroke-width:2px,color:#fff
-    classDef devStyle fill:#4a90e2,stroke:#232f3e,stroke-width:2px,color:#fff
-    classDef prodStyle fill:#e24a4a,stroke:#232f3e,stroke-width:2px,color:#fff
-
-    class WS,Pattern wsStyle
-    class Lambda1,S3_1,SQS1,Role1 devStyle
-    class Lambda2,S3_2,SQS2,Role2 prodStyle
-```
 
 ## IAM Permissions Flow
 
 ```mermaid
 graph TB
     subgraph "Lambda Function"
-        LambdaFunc[Lambda Function<br/>terraform-lab-sqs-to-s3-{workspace}]
+        LambdaFunc["Lambda Function<br/>terraform-lab-sqs-to-s3-workspace"]
     end
 
     subgraph "IAM Role"
-        LambdaRole[IAM Role<br/>terraform-lab-lambda-role-{workspace}]
+        LambdaRole["IAM Role<br/>terraform-lab-lambda-role-workspace"]
 
         subgraph "Attached Policy"
-            Policy[IAM Policy<br/>terraform-lab-lambda-policy]
+            Policy["IAM Policy<br/>terraform-lab-lambda-policy"]
 
             subgraph "Permissions"
-                LogsPerm[CloudWatch Logs<br/>CreateLogGroup<br/>CreateLogStream<br/>PutLogEvents]
+                LogsPerm["CloudWatch Logs<br/>CreateLogGroup<br/>CreateLogStream<br/>PutLogEvents"]
 
-                SQSPerm[SQS Queue<br/>ReceiveMessage<br/>DeleteMessage<br/>GetQueueAttributes]
+                SQSPerm["SQS Queue<br/>ReceiveMessage<br/>DeleteMessage<br/>GetQueueAttributes"]
 
-                S3Perm[S3 Bucket<br/>PutObject<br/>PutObjectAcl]
+                S3Perm["S3 Bucket<br/>PutObject<br/>PutObjectAcl"]
             end
         end
     end
 
     subgraph "AWS Services"
-        CWLogs[CloudWatch Logs]
-        SQSQueue[SQS Queue]
-        S3Bucket[S3 Bucket]
+        CWLogs["CloudWatch Logs"]
+        SQSQueue["SQS Queue"]
+        S3Bucket["S3 Bucket"]
     end
 
     LambdaFunc -->|Assumes| LambdaRole

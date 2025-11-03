@@ -19,7 +19,11 @@ resource "aws_lambda_function" "sqs_to_s3" {
   }
 }
 
-# Lambda Event Source Mapping (SQS trigger)
+# Event Source Mapping: Conecta la cola SQS con la función Lambda
+# Este recurso configura Lambda para que automáticamente procese mensajes de la cola SQS.
+# AWS manejará el polling de la cola y la invocación de la función Lambda por cada mensaje.
+# - batch_size: Cantidad de mensajes que Lambda procesará en cada invocación (1 = un mensaje a la vez)
+# - enabled: Activa o desactiva el trigger sin eliminarlo
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
   event_source_arn = aws_sqs_queue.main.arn
   function_name    = aws_lambda_function.sqs_to_s3.arn
