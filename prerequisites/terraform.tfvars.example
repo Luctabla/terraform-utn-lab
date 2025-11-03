@@ -1,0 +1,4 @@
+aws_profile         = "zlab"
+aws_region          = "us-east-1"
+state_bucket_name   = "terraform-states-utn-demo"
+dynamodb_table_name = "terraform-state-locks"
