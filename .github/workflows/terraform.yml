@@ -50,6 +50,11 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
+      - name: Package Lambda function
+        run: |
+          cd ${{ github.workspace }}
+          zip -j lambda_function.zip lambda_function.py
+
       - name: Set workspace name
         id: workspace
         run: |
