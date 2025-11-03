@@ -9,6 +9,21 @@ on:
     branches:
       - main
       - qa
+  workflow_dispatch:
+    inputs:
+      workspace:
+        description: 'Terraform workspace to use'
+        required: true
+        type: choice
+        options:
+          - prod
+          - qa
+          - dev
+      apply_changes:
+        description: 'Apply changes after plan?'
+        required: true
+        type: boolean
+        default: false
 
 env:
   AWS_REGION: us-east-1
@@ -38,7 +53,9 @@ jobs:
       - name: Set workspace name
         id: workspace
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "workspace=${{ inputs.workspace }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "workspace=prod" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref }}" == "refs/heads/qa" ]; then
             echo "workspace=qa" >> $GITHUB_OUTPUT
@@ -73,15 +90,21 @@ jobs:
           retention-days: 5
 
       - name: Terraform Apply
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/qa')
+        if: |
+          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/qa')) ||
+          (github.event_name == 'workflow_dispatch' && inputs.apply_changes == true)
         run: terraform apply tfplan
 
       - name: Terraform Output
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/qa')
+        if: |
+          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/qa')) ||
+          (github.event_name == 'workflow_dispatch' && inputs.apply_changes == true)
         run: terraform output -json > terraform-outputs.json
 
       - name: Upload Terraform Outputs
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/qa')
+        if: |
+          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/qa')) ||
+          (github.event_name == 'workflow_dispatch' && inputs.apply_changes == true)
         uses: actions/upload-artifact@v4
         with:
           name: terraform-outputs-${{ steps.workspace.outputs.workspace }}

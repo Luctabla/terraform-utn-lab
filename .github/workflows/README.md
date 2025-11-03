@@ -2,6 +2,24 @@
 
 Este pipeline de GitHub Actions automatiza el despliegue de infraestructura usando Terraform con soporte para múltiples ambientes mediante workspaces.
 
+## Ejecución Manual
+
+Puedes ejecutar el workflow manualmente desde GitHub:
+
+1. Ve a tu repositorio en GitHub
+2. Click en la pestaña **Actions**
+3. Selecciona el workflow **Terraform Deploy**
+4. Click en **Run workflow**
+5. Selecciona:
+   - **Workspace**: prod, qa, o dev
+   - **Apply changes after plan?**:
+     - ✅ Marcado: Ejecuta plan Y aplica los cambios
+     - ❌ Desmarcado (default): Solo ejecuta el plan (seguro)
+
+El workflow **SIEMPRE ejecuta el plan** para que puedas ver qué cambios se harán. El apply es completamente opcional.
+
+Esto te permite ejecutar Terraform en cualquier workspace sin necesidad de hacer push a una rama específica.
+
 ## Configuración
 
 ### Secrets Requeridos
