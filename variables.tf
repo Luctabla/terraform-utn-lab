@@ -10,3 +10,9 @@ variable "project_name" {
   default     = "terraform-lab"
 }
 
+variable "aws_profile" {
+  description = "AWS profile to use (leave empty for default credentials)"
+  type        = string
+  default     = ""
+}
+

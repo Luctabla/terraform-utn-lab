@@ -35,7 +35,7 @@ cd ..
 
 ### 2. Configure Backend in Main Project
 
-Add the backend configuration to your `main.tf`:
+The backend configuration is already in `backend.tf`:
 
 ```hcl
 terraform {
@@ -45,12 +45,30 @@ terraform {
     region         = "us-east-1"
     dynamodb_table = "terraform-state-locks"
     encrypt        = true
-    profile        = "zlab"
+    # profile is configured separately via terraform.tfvars
   }
 }
 ```
 
-### 3. Initialize Backend
+### 3. Configure Local Development
+
+Create your local configuration file:
+
+```bash
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars and set your AWS profile if needed
+```
+
+For local development, your `terraform.tfvars` should include:
+```hcl
+aws_profile  = "zlab"  # Your local AWS profile
+aws_region   = "us-east-1"
+project_name = "terraform-lab"
+```
+
+**Note**: `terraform.tfvars` is in `.gitignore` and won't be committed. For CI/CD (GitHub Actions), the profile is not needed as AWS credentials are provided via secrets.
+
+### 4. Initialize Backend
 
 ```bash
 terraform init -migrate-state

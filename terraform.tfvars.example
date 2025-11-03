@@ -3,3 +3,7 @@
 
 aws_region   = "us-east-1"
 project_name = "terraform-lab"
+
+# AWS Profile to use (for local development)
+# Leave empty or comment out for CI/CD or default credentials
+aws_profile  = "zlab"
