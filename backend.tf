@@ -6,5 +6,6 @@ terraform {
     dynamodb_table = "terraform-state-locks"
     encrypt        = true
     # profile        = "zlab"
+    # test
   }
 }
