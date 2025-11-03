@@ -91,11 +91,13 @@ jobs:
         run: terraform plan -out=tfplan
         continue-on-error: false
 
-      - name: Upload Plan
+      - name: Upload Plan and Lambda Package
         uses: actions/upload-artifact@v4
         with:
-          name: tfplan-${{ steps.workspace.outputs.workspace }}
-          path: tfplan
+          name: terraform-artifacts-${{ steps.workspace.outputs.workspace }}
+          path: |
+            tfplan
+            lambda_function.zip
           retention-days: 5
 
       - name: Comment PR with Plan
@@ -154,21 +156,16 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Package Lambda function
-        run: |
-          cd ${{ github.workspace }}
-          zip -j lambda_function.zip lambda_function.py
+      - name: Download Plan and Lambda Package
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-artifacts-${{ needs.plan.outputs.workspace }}
 
       - name: Terraform Init
         run: terraform init
 
       - name: Select Workspace
         run: terraform workspace select ${{ needs.plan.outputs.workspace }}
-
-      - name: Download Plan
-        uses: actions/download-artifact@v4
-        with:
-          name: tfplan-${{ needs.plan.outputs.workspace }}
 
       - name: Terraform Apply
         run: terraform apply tfplan
